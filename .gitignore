@@ -22,3 +22,14 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+FOLIO-2019-*.md
+FOLIO-2019-*.txt
+README-FOLIO-2019.md
+*_analysis.md
+*_diagrams.md
+*_guide.md
+*_reference.md
+*_findings.txt
+EXECUTIVE_SUMMARY.md
+FILE_REFERENCE.md
+CONSOLIDATED_FINDINGS.txt
