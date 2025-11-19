@@ -14,7 +14,7 @@ export default class InteractiveObjects {
   }
 
   createPortfolioObjects() {
-    // Create portfolio showcase items scattered in the world
+    // Create portfolio showcase items scattered in the world - simplified
     const portfolioItems = [
       {
         title: 'Project 1',
@@ -26,25 +26,13 @@ export default class InteractiveObjects {
         title: 'Project 2',
         position: new THREE.Vector3(-25, 3, 15),
         color: 0x00ffff,
-        type: 'sphere'
-      },
-      {
-        title: 'Project 3',
-        position: new THREE.Vector3(15, 4, -30),
-        color: 0xffff00,
-        type: 'torus'
+        type: 'cube'
       },
       {
         title: 'About Me',
         position: new THREE.Vector3(-20, 3, -25),
         color: 0xff6600,
-        type: 'octahedron'
-      },
-      {
-        title: 'Contact',
-        position: new THREE.Vector3(30, 3, -15),
-        color: 0x00ff88,
-        type: 'dodecahedron'
+        type: 'cube'
       }
     ];
 
@@ -109,18 +97,8 @@ export default class InteractiveObjects {
     platform.receiveShadow = true;
     this.scene.add(platform);
 
-    // Add rotating ring around object
-    const ringGeometry = new THREE.TorusGeometry(size, 0.1, 8, 32);
-    const ringMaterial = new THREE.MeshStandardMaterial({
-      color: data.color,
-      metalness: 1.0,
-      roughness: 0.0,
-      emissive: data.color,
-      emissiveIntensity: 0.8
-    });
-    const ring = new THREE.Mesh(ringGeometry, ringMaterial);
-    ring.rotation.x = Math.PI / 2;
-    mesh.add(ring);
+    // Simplified - no ring for better performance
+    const ring = null;
 
     // Add point light
     const light = new THREE.PointLight(data.color, 2, 20);
@@ -244,11 +222,6 @@ export default class InteractiveObjects {
       // Rotation
       obj.rotation += deltaTime * 0.5;
       obj.mesh.rotation.y = obj.rotation;
-
-      // Ring rotation
-      if (obj.ring) {
-        obj.ring.rotation.z += deltaTime * 2;
-      }
 
       // Hover effect
       if (obj.isHovered) {

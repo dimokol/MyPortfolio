@@ -87,8 +87,8 @@ export default class ProceduralTerrain {
       return;
     }
 
-    // Create flat plane geometry with procedural details
-    const segments = 32;
+    // Create flat plane geometry - simplified for performance
+    const segments = 8;
     const geometry = new THREE.PlaneGeometry(
       this.chunkSize,
       this.chunkSize,
@@ -98,18 +98,6 @@ export default class ProceduralTerrain {
 
     // Rotate to be horizontal
     geometry.rotateX(-Math.PI / 2);
-
-    // Add subtle height variations for visual interest (not affecting physics)
-    const positions = geometry.attributes.position.array;
-    for (let i = 0; i < positions.length; i += 3) {
-      const x = positions[i] + chunkX * this.chunkSize;
-      const z = positions[i + 2] + chunkZ * this.chunkSize;
-
-      // Very subtle noise for visual variation only
-      const noise = this.noise.noise2D(x * 0.05, z * 0.05) * 0.3;
-      positions[i + 1] = noise;
-    }
-    geometry.computeVertexNormals();
 
     // Create mesh
     const mesh = new THREE.Mesh(geometry, this.groundMaterial);
@@ -121,8 +109,8 @@ export default class ProceduralTerrain {
     mesh.receiveShadow = true;
     this.scene.add(mesh);
 
-    // Add procedural objects to this chunk (trees, rocks, portfolio items)
-    const objects = this.generateChunkObjects(chunkX, chunkZ);
+    // Simplified - no procedural objects for better performance
+    const objects = [];
 
     // Physics - flat plane (no height variation)
     const physicsShape = new CANNON.Box(
@@ -150,57 +138,6 @@ export default class ProceduralTerrain {
     });
   }
 
-  generateChunkObjects(chunkX, chunkZ) {
-    const objects = [];
-
-    // Deterministic random based on chunk position
-    const seed = chunkX * 73856093 ^ chunkZ * 19349663;
-    const random = () => {
-      const x = Math.sin(seed + objects.length * 12.9898) * 43758.5453;
-      return x - Math.floor(x);
-    };
-
-    // Generate decorative objects
-    const objectCount = Math.floor(random() * 5) + 2;
-
-    for (let i = 0; i < objectCount; i++) {
-      const x = (random() - 0.5) * this.chunkSize * 0.8;
-      const z = (random() - 0.5) * this.chunkSize * 0.8;
-
-      const worldX = chunkX * this.chunkSize + x;
-      const worldZ = chunkZ * this.chunkSize + z;
-
-      // Create stylized object (crystal/pillar)
-      const height = random() * 3 + 2;
-      const geometry = new THREE.ConeGeometry(0.5, height, 6);
-
-      const hue = random();
-      const color = new THREE.Color().setHSL(hue, 0.8, 0.5);
-      const material = new THREE.MeshStandardMaterial({
-        color: color,
-        metalness: 0.8,
-        roughness: 0.2,
-        emissive: color,
-        emissiveIntensity: 0.3,
-        flatShading: true
-      });
-
-      const mesh = new THREE.Mesh(geometry, material);
-      mesh.position.set(worldX, height / 2, worldZ);
-      mesh.castShadow = true;
-      mesh.receiveShadow = true;
-      this.scene.add(mesh);
-
-      // Add a point light for glow effect
-      const light = new THREE.PointLight(color, 0.5, 10);
-      light.position.set(worldX, height, worldZ);
-      this.scene.add(light);
-
-      objects.push({ mesh, light });
-    }
-
-    return objects;
-  }
 
   removeChunk(chunkX, chunkZ) {
     const key = `${chunkX}_${chunkZ}`;

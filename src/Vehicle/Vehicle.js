@@ -8,24 +8,16 @@ export default class Vehicle {
     this.physicsWorld = experience.physicsWorld;
     this.controls = experience.controls;
 
-    // Vehicle parameters
+    // Vehicle parameters - simplified for better performance
     this.params = {
       chassisWidth: 2.4,
       chassisHeight: 1.0,
       chassisLength: 4.5,
-      mass: 150,
+      mass: 5,
       wheelRadius: 0.5,
       wheelWidth: 0.4,
-      wheelOffset: 0.3,
-      suspensionStiffness: 30,
-      suspensionRestLength: 0.3,
-      maxSuspensionTravel: 0.3,
-      dampingRelaxation: 2.3,
-      dampingCompression: 4.4,
-      maxSteerVal: 0.5,
-      maxForce: 1500,
-      brakeForce: 20,
-      friction: 5
+      maxSteerVal: Math.PI / 8,
+      maxForce: 50
     };
 
     this.createChassis();
@@ -163,70 +155,69 @@ export default class Vehicle {
   }
 
   setupVehicle() {
-    // Create RaycastVehicle
-    this.vehicle = new CANNON.RaycastVehicle({
-      chassisBody: this.chassisBody,
-      indexRightAxis: 0,
-      indexUpAxis: 1,
-      indexForwardAxis: 2
+    // Create RigidVehicle (simpler and works better)
+    this.vehicle = new CANNON.RigidVehicle({
+      chassisBody: this.chassisBody
     });
 
-    const wheelPositions = [
-      // Front-left
-      new CANNON.Vec3(
-        -this.params.chassisWidth / 2 - this.params.wheelOffset,
-        0,
-        this.params.chassisLength / 2 - 0.5
-      ),
-      // Front-right
-      new CANNON.Vec3(
-        this.params.chassisWidth / 2 + this.params.wheelOffset,
-        0,
-        this.params.chassisLength / 2 - 0.5
-      ),
-      // Rear-left
-      new CANNON.Vec3(
-        -this.params.chassisWidth / 2 - this.params.wheelOffset,
-        0,
-        -this.params.chassisLength / 2 + 0.5
-      ),
-      // Rear-right
-      new CANNON.Vec3(
-        this.params.chassisWidth / 2 + this.params.wheelOffset,
-        0,
-        -this.params.chassisLength / 2 + 0.5
-      )
-    ];
+    const mass = 1;
+    const axisWidth = 5;
+    const wheelShape = new CANNON.Sphere(this.params.wheelRadius);
+    const wheelMaterial = this.experience.wheelMaterial;
+    const down = new CANNON.Vec3(0, -1, 0);
 
-    const wheelOptions = {
-      radius: this.params.wheelRadius,
-      directionLocal: new CANNON.Vec3(0, -1, 0),
-      suspensionStiffness: this.params.suspensionStiffness,
-      suspensionRestLength: this.params.suspensionRestLength,
-      frictionSlip: this.params.friction,
-      dampingRelaxation: this.params.dampingRelaxation,
-      dampingCompression: this.params.dampingCompression,
-      maxSuspensionForce: 100000,
-      rollInfluence: 0.01,
-      axleLocal: new CANNON.Vec3(-1, 0, 0),
-      chassisConnectionPointLocal: new CANNON.Vec3(1, 1, 0),
-      maxSuspensionTravel: this.params.maxSuspensionTravel,
-      customSlidingRotationalSpeed: -30,
-      useCustomSlidingRotationalSpeed: true
-    };
+    // Wheel bodies
+    this.wheelBodies = [];
 
-    // Add wheels
-    wheelPositions.forEach((position) => {
-      wheelOptions.chassisConnectionPointLocal = position;
-      this.vehicle.addWheel(wheelOptions);
+    // Front-left wheel
+    const wheelBody1 = new CANNON.Body({ mass, material: wheelMaterial });
+    wheelBody1.addShape(wheelShape);
+    wheelBody1.angularDamping = 0.4;
+    this.vehicle.addWheel({
+      body: wheelBody1,
+      position: new CANNON.Vec3(-2, 0, axisWidth / 2),
+      axis: new CANNON.Vec3(0, 0, 1),
+      direction: down
     });
+    this.wheelBodies.push(wheelBody1);
+
+    // Front-right wheel
+    const wheelBody2 = new CANNON.Body({ mass, material: wheelMaterial });
+    wheelBody2.addShape(wheelShape);
+    wheelBody2.angularDamping = 0.4;
+    this.vehicle.addWheel({
+      body: wheelBody2,
+      position: new CANNON.Vec3(-2, 0, -axisWidth / 2),
+      axis: new CANNON.Vec3(0, 0, 1),
+      direction: down
+    });
+    this.wheelBodies.push(wheelBody2);
+
+    // Rear-left wheel
+    const wheelBody3 = new CANNON.Body({ mass, material: wheelMaterial });
+    wheelBody3.addShape(wheelShape);
+    wheelBody3.angularDamping = 0.4;
+    this.vehicle.addWheel({
+      body: wheelBody3,
+      position: new CANNON.Vec3(2, 0, axisWidth / 2),
+      axis: new CANNON.Vec3(0, 0, 1),
+      direction: down
+    });
+    this.wheelBodies.push(wheelBody3);
+
+    // Rear-right wheel
+    const wheelBody4 = new CANNON.Body({ mass, material: wheelMaterial });
+    wheelBody4.addShape(wheelShape);
+    wheelBody4.angularDamping = 0.4;
+    this.vehicle.addWheel({
+      body: wheelBody4,
+      position: new CANNON.Vec3(2, 0, -axisWidth / 2),
+      axis: new CANNON.Vec3(0, 0, 1),
+      direction: down
+    });
+    this.wheelBodies.push(wheelBody4);
 
     this.vehicle.addToWorld(this.physicsWorld);
-
-    // Apply material to wheels
-    this.vehicle.wheelInfos.forEach((wheel) => {
-      wheel.frictionSlip = this.params.friction;
-    });
   }
 
   createHeadlights() {
@@ -280,33 +271,38 @@ export default class Vehicle {
     // Apply forces based on controls
     const input = this.controls.input;
 
+    // Acceleration/Braking
+    if (input.forward) {
+      this.vehicle.setWheelForce(this.params.maxForce, 2);
+      this.vehicle.setWheelForce(this.params.maxForce, 3);
+    } else if (input.backward) {
+      this.vehicle.setWheelForce(-this.params.maxForce / 2, 2);
+      this.vehicle.setWheelForce(-this.params.maxForce / 2, 3);
+    } else {
+      this.vehicle.setWheelForce(0, 2);
+      this.vehicle.setWheelForce(0, 3);
+    }
+
     // Steering
-    const steerValue = input.left ? this.params.maxSteerVal : input.right ? -this.params.maxSteerVal : 0;
-    this.vehicle.setSteeringValue(steerValue, 0);
-    this.vehicle.setSteeringValue(steerValue, 1);
-
-    // Acceleration
-    const force = input.forward ? this.params.maxForce : input.backward ? -this.params.maxForce / 2 : 0;
-    this.vehicle.applyEngineForce(force, 2);
-    this.vehicle.applyEngineForce(force, 3);
-
-    // Braking
-    const brake = input.brake ? this.params.brakeForce : 0;
-    this.vehicle.setBrake(brake, 0);
-    this.vehicle.setBrake(brake, 1);
-    this.vehicle.setBrake(brake, 2);
-    this.vehicle.setBrake(brake, 3);
+    if (input.left) {
+      this.vehicle.setSteeringValue(this.params.maxSteerVal, 0);
+      this.vehicle.setSteeringValue(this.params.maxSteerVal, 1);
+    } else if (input.right) {
+      this.vehicle.setSteeringValue(-this.params.maxSteerVal, 0);
+      this.vehicle.setSteeringValue(-this.params.maxSteerVal, 1);
+    } else {
+      this.vehicle.setSteeringValue(0, 0);
+      this.vehicle.setSteeringValue(0, 1);
+    }
 
     // Update visual meshes to match physics
     this.chassisMesh.position.copy(this.chassisBody.position);
     this.chassisMesh.quaternion.copy(this.chassisBody.quaternion);
 
     // Update wheel meshes
-    for (let i = 0; i < this.vehicle.wheelInfos.length; i++) {
-      this.vehicle.updateWheelTransform(i);
-      const transform = this.vehicle.wheelInfos[i].worldTransform;
-      this.wheelMeshes[i].position.copy(transform.position);
-      this.wheelMeshes[i].quaternion.copy(transform.quaternion);
+    for (let i = 0; i < this.wheelBodies.length; i++) {
+      this.wheelMeshes[i].position.copy(this.wheelBodies[i].position);
+      this.wheelMeshes[i].quaternion.copy(this.wheelBodies[i].quaternion);
     }
 
     // Auto-flip if upside down
@@ -318,7 +314,7 @@ export default class Vehicle {
       // Car is upside down, flip it
       const currentPos = this.chassisBody.position;
       this.chassisBody.position.set(currentPos.x, currentPos.y + 3, currentPos.z);
-      this.chassisBody.quaternion.setFromEuler(0, this.chassisBody.quaternion.y, 0);
+      this.chassisBody.quaternion.setFromEuler(0, 0, 0);
       this.chassisBody.velocity.set(0, 0, 0);
       this.chassisBody.angularVelocity.set(0, 0, 0);
     }

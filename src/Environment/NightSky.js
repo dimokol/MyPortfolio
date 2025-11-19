@@ -5,15 +5,14 @@ export default class NightSky {
     this.experience = experience;
     this.scene = experience.scene;
 
-    // Star parameters
-    this.starCount = 5000;
+    // Star parameters - reduced for performance
+    this.starCount = 300;
     this.shootingStars = [];
-    this.shootingStarInterval = 5000; // ms between shooting stars
+    this.shootingStarInterval = 8000; // ms between shooting stars
     this.lastShootingStar = 0;
 
     this.createStarfield();
     this.createMoon();
-    this.createShootingStarSystem();
   }
 
   createStarfield() {
@@ -215,40 +214,6 @@ export default class NightSky {
     // Update star twinkle
     if (this.starField) {
       this.starField.material.uniforms.uTime.value = elapsedTime;
-    }
-
-    // Create shooting stars periodically
-    if (elapsedTime - this.lastShootingStar > this.shootingStarInterval / 1000) {
-      this.createShootingStar();
-      this.lastShootingStar = elapsedTime;
-      // Random interval
-      this.shootingStarInterval = Math.random() * 8000 + 3000;
-    }
-
-    // Update shooting stars
-    for (let i = this.shootingStars.length - 1; i >= 0; i--) {
-      const star = this.shootingStars[i];
-
-      // Move
-      const positions = star.positions;
-      for (let j = 0; j < positions.length; j += 3) {
-        positions[j] += star.velocity.x;
-        positions[j + 1] += star.velocity.y;
-        positions[j + 2] += star.velocity.z;
-      }
-      star.mesh.geometry.attributes.position.needsUpdate = true;
-
-      // Fade
-      star.life -= 0.02;
-      star.mesh.material.opacity = star.life;
-
-      // Remove if faded
-      if (star.life <= 0) {
-        this.scene.remove(star.mesh);
-        star.mesh.geometry.dispose();
-        star.mesh.material.dispose();
-        this.shootingStars.splice(i, 1);
-      }
     }
 
     // Slowly rotate moon

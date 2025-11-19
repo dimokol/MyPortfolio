@@ -1,0 +1,226 @@
+.preloader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: linear-gradient(135deg, #0a0a1a 0%, #1a1a3e 100%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.preloader-content {
+  text-align: center;
+  color: white;
+}
+
+/* Animated Car */
+.car-container {
+  position: relative;
+  width: 200px;
+  height: 100px;
+  margin: 0 auto 40px;
+  overflow: hidden;
+}
+
+.car {
+  position: relative;
+  width: 100px;
+  height: 40px;
+  animation: drive 2s infinite linear;
+}
+
+@keyframes drive {
+  0% {
+    transform: translateX(-150px);
+  }
+  100% {
+    transform: translateX(250px);
+  }
+}
+
+.car-body {
+  position: absolute;
+  width: 80px;
+  height: 30px;
+  background: linear-gradient(135deg, #ff00ff 0%, #00ffff 100%);
+  border-radius: 5px;
+  top: 10px;
+  left: 10px;
+  box-shadow: 0 0 20px rgba(255, 0, 255, 0.5);
+}
+
+.car-body::before {
+  content: '';
+  position: absolute;
+  width: 40px;
+  height: 20px;
+  background: rgba(0, 255, 255, 0.3);
+  border-radius: 3px;
+  top: -15px;
+  left: 20px;
+}
+
+.wheel {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background: #2a2a3e;
+  border: 3px solid #ff00ff;
+  border-radius: 50%;
+  bottom: 0;
+  animation: rotate 0.5s infinite linear;
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.wheel-front {
+  left: 70px;
+}
+
+.wheel-back {
+  left: 10px;
+}
+
+.road {
+  position: absolute;
+  bottom: 0;
+  width: 400px;
+  height: 4px;
+  background: repeating-linear-gradient(
+    90deg,
+    #00ffff 0px,
+    #00ffff 20px,
+    transparent 20px,
+    transparent 40px
+  );
+  animation: roadScroll 1s infinite linear;
+}
+
+@keyframes roadScroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-40px);
+  }
+}
+
+/* Loading Text */
+.loading-text {
+  font-size: 2em;
+  margin: 20px 0;
+  background: linear-gradient(45deg, #ff00ff, #00ffff, #ffff00);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: glow 2s ease-in-out infinite;
+}
+
+@keyframes glow {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* Progress Bar */
+.progress-bar {
+  width: 300px;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  margin: 30px auto;
+  overflow: hidden;
+  border: 2px solid #00ffff;
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #ff00ff 0%, #00ffff 50%, #ffff00 100%);
+  border-radius: 10px;
+  animation: progress 2.5s ease-in-out infinite;
+}
+
+@keyframes progress {
+  0% {
+    width: 0%;
+  }
+  100% {
+    width: 100%;
+  }
+}
+
+/* Loading Tip */
+.loading-tip {
+  margin-top: 20px;
+  color: #00ffff;
+  font-size: 1.1em;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Sparkle Effects */
+.preloader::before,
+.preloader::after {
+  content: '';
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: white;
+  border-radius: 50%;
+  animation: sparkle 3s infinite;
+}
+
+.preloader::before {
+  top: 20%;
+  left: 20%;
+  animation-delay: 0s;
+}
+
+.preloader::after {
+  top: 60%;
+  right: 30%;
+  animation-delay: 1.5s;
+}
+
+@keyframes sparkle {
+  0%, 100% {
+    opacity: 0;
+    transform: scale(0);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

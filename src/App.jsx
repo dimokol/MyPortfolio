@@ -1,15 +1,25 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Experience from './Experience/Experience.js';
+import Preloader from './Components/Preloader.jsx';
 import './App.css';
 
 function App() {
   const canvasRef = useRef(null);
   const experienceRef = useRef(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     // Initialize the experience
     if (canvasRef.current && !experienceRef.current) {
-      experienceRef.current = new Experience(canvasRef.current);
+      // Short delay to show the preloader animation
+      setTimeout(() => {
+        experienceRef.current = new Experience(canvasRef.current);
+
+        // Hide preloader after initialization
+        setTimeout(() => {
+          setIsLoading(false);
+        }, 1000);
+      }, 500);
     }
 
     // Cleanup on unmount
@@ -22,10 +32,12 @@ function App() {
 
   return (
     <div className="app-container">
+      <Preloader isLoading={isLoading} />
+
       <canvas ref={canvasRef} className="webgl" />
 
       {/* UI Overlay */}
-      <div className="ui-overlay">
+      <div className="ui-overlay" style={{ opacity: isLoading ? 0 : 1, transition: 'opacity 0.5s' }}>
         <div className="title">
           <h1>dimokol</h1>
           <p className="subtitle">Interactive 3D Portfolio</p>
