@@ -165,54 +165,55 @@ export default class Vehicle {
     const wheelShape = new CANNON.Sphere(this.params.wheelRadius);
     const wheelMaterial = this.experience.wheelMaterial;
     const down = new CANNON.Vec3(0, -1, 0);
+    const wheelAxis = new CANNON.Vec3(1, 0, 0); // X-axis for proper wheel rotation
 
     // Wheel bodies
     this.wheelBodies = [];
 
-    // Front-left wheel
+    // Front-left wheel (index 0)
     const wheelBody1 = new CANNON.Body({ mass, material: wheelMaterial });
     wheelBody1.addShape(wheelShape);
     wheelBody1.angularDamping = 0.4;
     this.vehicle.addWheel({
       body: wheelBody1,
       position: new CANNON.Vec3(-2, 0, axisWidth / 2),
-      axis: new CANNON.Vec3(0, 0, 1),
+      axis: wheelAxis,
       direction: down
     });
     this.wheelBodies.push(wheelBody1);
 
-    // Front-right wheel
+    // Front-right wheel (index 1)
     const wheelBody2 = new CANNON.Body({ mass, material: wheelMaterial });
     wheelBody2.addShape(wheelShape);
     wheelBody2.angularDamping = 0.4;
     this.vehicle.addWheel({
       body: wheelBody2,
       position: new CANNON.Vec3(-2, 0, -axisWidth / 2),
-      axis: new CANNON.Vec3(0, 0, 1),
+      axis: wheelAxis,
       direction: down
     });
     this.wheelBodies.push(wheelBody2);
 
-    // Rear-left wheel
+    // Rear-left wheel (index 2)
     const wheelBody3 = new CANNON.Body({ mass, material: wheelMaterial });
     wheelBody3.addShape(wheelShape);
     wheelBody3.angularDamping = 0.4;
     this.vehicle.addWheel({
       body: wheelBody3,
       position: new CANNON.Vec3(2, 0, axisWidth / 2),
-      axis: new CANNON.Vec3(0, 0, 1),
+      axis: wheelAxis,
       direction: down
     });
     this.wheelBodies.push(wheelBody3);
 
-    // Rear-right wheel
+    // Rear-right wheel (index 3)
     const wheelBody4 = new CANNON.Body({ mass, material: wheelMaterial });
     wheelBody4.addShape(wheelShape);
     wheelBody4.angularDamping = 0.4;
     this.vehicle.addWheel({
       body: wheelBody4,
       position: new CANNON.Vec3(2, 0, -axisWidth / 2),
-      axis: new CANNON.Vec3(0, 0, 1),
+      axis: wheelAxis,
       direction: down
     });
     this.wheelBodies.push(wheelBody4);
